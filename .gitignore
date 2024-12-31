@@ -1,15 +1,72 @@
+# Compiled source #
+###################
+*.apk
+*.dex
+*.class
+*.jar
+*.war
+*.aar
+*.so
+*.dylib
+*.elf
+*.o
+*.pdb
+*.ilk
+*.obj
+*.bin
+*.bundle
+*.tds
+
+# Generated files #
+####################
+bin/
+gen/
+out/
+build/
+target/
+.gradle/
+.idea/
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
+local.properties
+*.keystore
 /captures
 .externalNativeBuild
-.cxx
+*.jks
+*.apk.idsig
+
+# Android Studio / IntelliJ IDEA #
+#################################
+*.iws
+*.ipr
+*.iia
+*.idea
+.classpath
+.project
+*.mvstore
+*.ap_
+*.hprof
+*.log
+/build
+.DS_Store
+
+# Gradle #
+#########
+.gradle
+/gradle
+/local.properties
+*.swp
+
+# Local configuration #
+#######################
 local.properties
+.DS_Store
+.vscode/
+*.prefs
+
+# Other #
+#########
+*~
+/node_modules
+
+# Log files
+*.log
