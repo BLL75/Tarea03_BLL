@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "417197499938",
+    "project_id": "tarea03bll",
+    "storage_bucket": "tarea03bll.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:417197499938:android:273ee8eb58c62675450c7b",
+        "android_client_info": {
+          "package_name": "luquelafuente.bernardo.tarea_03bll"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnyIY4raIv1hXcwg-tHzmwfOSsQSDW1eo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
