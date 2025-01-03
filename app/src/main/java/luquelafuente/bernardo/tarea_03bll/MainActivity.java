@@ -6,10 +6,15 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -35,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
     );
+    private NavHostFragment navHostFragment;
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +55,36 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(getBaseContext(), "Sesión iniciada", Toast.LENGTH_LONG).show();
         }
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        // Find the NavHostFragment, initialize the navController, and bind it to the bottomNav
+        navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        if(navHostFragment == null){
+            navHostFragment =  (NavHostFragment) getSupportFragmentManager().findFragmentByTag("nav_host_fragment_tag");
+        }
+        if(navHostFragment == null) {
+            navHostFragment = NavHostFragment.create(R.navigation.nav_graph);
+            getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, navHostFragment, "nav_host_fragment_tag").setPrimaryNavigationFragment(navHostFragment).commit();
+        }
+
+
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if(navHostFragment == null) {
+            navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+            if(navHostFragment == null){
+                navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentByTag("nav_host_fragment_tag");
+            }
+            if(navHostFragment == null){
+                navHostFragment = NavHostFragment.create(R.navigation.nav_graph);
+                getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, navHostFragment, "nav_host_fragment_tag").setPrimaryNavigationFragment(navHostFragment).commit();
+            }
+        }
+        navController = navHostFragment.getNavController();
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
     }
 
     private void createSignInIntent() {
