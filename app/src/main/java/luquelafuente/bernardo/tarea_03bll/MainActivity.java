@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(getBaseContext(), "Sesión iniciada", Toast.LENGTH_LONG).show();
         }
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         // Find the NavHostFragment, initialize the navController, and bind it to the bottomNav
         navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
@@ -65,10 +66,7 @@ public class MainActivity extends AppCompatActivity {
             navHostFragment = NavHostFragment.create(R.navigation.nav_graph);
             getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, navHostFragment, "nav_host_fragment_tag").setPrimaryNavigationFragment(navHostFragment).commit();
         }
-
-
     }
-
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -85,8 +83,16 @@ public class MainActivity extends AppCompatActivity {
         navController = navHostFragment.getNavController();
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        navController.addOnDestinationChangedListener((controller, destination, arguments) ->{
+            if(destination.getId() == R.id.myPokemonsFragment){
+                bottomNavigationView.getMenu().findItem(R.id.myPokemonsFragment).setTitle("Mis Pokémons");
+            } else if (destination.getId() == R.id.pokedexFragment) {
+                bottomNavigationView.getMenu().findItem(R.id.pokedexFragment).setTitle("Pokédex");
+            }else if (destination.getId() == R.id.settingsFragment) {
+                bottomNavigationView.getMenu().findItem(R.id.settingsFragment).setTitle("Ajustes");
+            }
+        });
     }
-
     private void createSignInIntent() {
         // [START auth_fui_create_intent]
         // Choose authentication providers
