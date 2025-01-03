@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/myPokemonsFragment">
+
+    <fragment
+        android:id="@+id/myPokemonsFragment"
+        android:name="luquelafuente.bernardo.tarea_03bll.MyPokemonsFragment"
+        tools:layout="@layout/fragment_my_pokemons" />
+    <fragment
+        android:id="@+id/pokedexFragment"
+        android:name="luquelafuente.bernardo.tarea_03bll.PokedexFragment"
+        tools:layout="@layout/fragment_pokedex" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="luquelafuente.bernardo.tarea_03bll.SettingsFragment"
+        tools:layout="@layout/fragment_settings" />
+</navigation>
