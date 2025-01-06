@@ -5,11 +5,8 @@
     android:layout_height="match_parent"
     tools:context=".MyPokemonsFragment">
 
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_pokemons"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textSize="24sp"
-        android:text="Mis Pokemon Fragment"/>
-
+        android:layout_height="match_parent"/>
 </FrameLayout>

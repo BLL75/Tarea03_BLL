@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(getBaseContext(), "Sesión iniciada", Toast.LENGTH_LONG).show();
         }
-
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         // Find the NavHostFragment, initialize the navController, and bind it to the bottomNav
         navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
@@ -67,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, navHostFragment, "nav_host_fragment_tag").setPrimaryNavigationFragment(navHostFragment).commit();
         }
     }
+
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -93,16 +93,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void createSignInIntent() {
         // [START auth_fui_create_intent]
         // Choose authentication providers
         List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build()
+                new AuthUI.IdpConfig.EmailBuilder().build(),
+                new AuthUI.IdpConfig.GoogleBuilder().build()
         );
         // Create and launch sign-in intent
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
+                .setLogo(R.drawable.ic_pokemon_logo)
                 .build();
         signInLauncher.launch(signInIntent);
     }

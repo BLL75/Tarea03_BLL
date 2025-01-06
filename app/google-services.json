@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "417197499938",
-    "project_id": "tarea03bll",
-    "storage_bucket": "tarea03bll.firebasestorage.app"
+    "project_number": "257191610055",
+    "project_id": "tarea03bll-e211d",
+    "storage_bucket": "tarea03bll-e211d.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:417197499938:android:273ee8eb58c62675450c7b",
+        "mobilesdk_app_id": "1:257191610055:android:d12f1e108c24de269160e2",
         "android_client_info": {
           "package_name": "luquelafuente.bernardo.tarea_03bll"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "257191610055-vt3pdinl8likpnbpmg0ntmas07pqfq9l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "luquelafuente.bernardo.tarea_03bll",
+            "certificate_hash": "e9b22eb1a500f096a6baa0d0b7c02aa57714b0e8"
+          }
+        },
+        {
+          "client_id": "257191610055-f36popssr0a5oac6fakba3k6cb694q3n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCnyIY4raIv1hXcwg-tHzmwfOSsQSDW1eo"
+          "current_key": "AIzaSyDhXx6UIceYUgRb5ddXSe2AkBVbGLCo49Y"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "257191610055-f36popssr0a5oac6fakba3k6cb694q3n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
