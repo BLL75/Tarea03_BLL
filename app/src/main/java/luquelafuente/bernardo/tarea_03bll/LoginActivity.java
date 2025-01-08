@@ -11,15 +11,22 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+
+import java.util.Arrays;
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button loginButton;
+    private Button loginGoogleButton;
     private TextView registerTextView;
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -51,12 +58,16 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.editTextPasswordLogin);
         loginButton = findViewById(R.id.buttonLogin);
         registerTextView = findViewById(R.id.textViewRegister);
-
+        loginGoogleButton = findViewById(R.id.buttonLoginGoogle);
 
         loginButton.setOnClickListener(view -> {
             String email = emailEditText.getText().toString();
             String password = passwordEditText.getText().toString();
 
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Por favor, introduce el correo y la contraseña.", Toast.LENGTH_LONG).show();
+                return;
+            }
             auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
@@ -77,5 +88,24 @@ public class LoginActivity extends AppCompatActivity {
         registerTextView.setOnClickListener(view ->{
             startActivity(new Intent(this, RegisterActivity.class));
         });
+        loginGoogleButton.setOnClickListener(view ->{
+            createSignInIntent();
+        });
+    }
+    private void createSignInIntent() {
+        // [START auth_fui_create_intent]
+        // Choose authentication providers
+        List<AuthUI.IdpConfig> providers = Arrays.asList(
+                new AuthUI.IdpConfig.EmailBuilder().build(),
+                new AuthUI.IdpConfig.GoogleBuilder().build()
+        );
+        // Create and launch sign-in intent
+        Intent signInIntent = AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .setLogo(R.drawable.ic_pokemon_logo)
+                .setTheme(R.style.FirebaseUIAuthTheme)
+                .build();
+        signInLauncher.launch(signInIntent);
     }
 }
