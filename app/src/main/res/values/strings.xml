@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">Tarea_03BLL</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="error_empty_fields">Por favor, introduce el correo y la contraseña.</string>
+    <string name="login_success">Login correcto</string>
+    <string name="login_failed">Authentication failed.</string>
+    <string name="register_success">Registro correcto</string>
+    <string name="register_failed">Authentication failed.</string>
 </resources>

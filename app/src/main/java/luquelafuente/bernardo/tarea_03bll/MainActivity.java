@@ -2,8 +2,6 @@ package luquelafuente.bernardo.tarea_03bll;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -29,9 +27,8 @@ public class MainActivity extends AppCompatActivity {
         if (currentUser == null) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
-        } else {
-            Toast.makeText(getBaseContext(), "Sesión iniciada", Toast.LENGTH_LONG).show();
         }
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         // Find the NavHostFragment, initialize the navController, and bind it to the bottomNav
         navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
