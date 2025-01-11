@@ -9,13 +9,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHolder> {
 
-    private List<String> pokemonsList;
+    private List<Pokemon> pokemonsList;
 
-    public PokemonAdapter(List<String> pokemonsList) {
+    public PokemonAdapter(List<Pokemon> pokemonsList) {
         this.pokemonsList = pokemonsList;
     }
 
@@ -28,12 +30,17 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String pokemon = pokemonsList.get(position);
-        holder.nameTextView.setText(pokemon);
-        //        holder.indiceTextView.setText("indice");
-        //         holder.tiposTextView.setText("tipos");
-        //         holder.pesoTextView.setText("peso");
-        //         holder.alturaTextView.setText("altura");
+        Pokemon pokemon = pokemonsList.get(position);
+        holder.nameTextView.setText(pokemon.getNombre());
+        holder.indiceTextView.setText(String.format("%s%s", holder.itemView.getContext().getString(R.string.pokemon_indice),pokemon.getIndice()));
+        holder.tiposTextView.setText(String.format("%s%s",holder.itemView.getContext().getString(R.string.pokemon_tipos),pokemon.getTipos()));
+        holder.pesoTextView.setText(String.format("%s%s",holder.itemView.getContext().getString(R.string.pokemon_peso),pokemon.getPeso()));
+        holder.alturaTextView.setText(String.format("%s%s",holder.itemView.getContext().getString(R.string.pokemon_altura),pokemon.getAltura()));
+        if(pokemon.getFoto() != null && !pokemon.getFoto().isEmpty()){
+            Glide.with(holder.pokemonImageView.getContext())
+                    .load(pokemon.getFoto())
+                    .into(holder.pokemonImageView);
+        }
     }
 
     @Override
@@ -52,11 +59,11 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHold
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.text_view_pokemon_name);
-            //   indiceTextView = itemView.findViewById(R.id.text_view_pokemon_indice);
-            //   tiposTextView = itemView.findViewById(R.id.text_view_pokemon_tipos);
-            //   pesoTextView = itemView.findViewById(R.id.text_view_pokemon_peso);
-            //  alturaTextView = itemView.findViewById(R.id.text_view_pokemon_altura);
-            //    pokemonImageView = itemView.findViewById(R.id.image_view_pokemon);
+            indiceTextView = itemView.findViewById(R.id.text_view_pokemon_indice);
+            tiposTextView = itemView.findViewById(R.id.text_view_pokemon_tipos);
+            pesoTextView = itemView.findViewById(R.id.text_view_pokemon_peso);
+            alturaTextView = itemView.findViewById(R.id.text_view_pokemon_altura);
+            pokemonImageView = itemView.findViewById(R.id.image_view_pokemon);
         }
     }
 }
