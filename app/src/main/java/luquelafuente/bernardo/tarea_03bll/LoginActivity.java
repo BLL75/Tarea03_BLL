@@ -65,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
             String password = passwordEditText.getText().toString();
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Por favor, introduce el correo y la contraseña.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.error_empty_fields, Toast.LENGTH_LONG).show();
                 return;
             }
             auth.signInWithEmailAndPassword(email, password)
