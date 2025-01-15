@@ -12,7 +12,7 @@
     <fragment
         android:id="@+id/pokedexFragment"
         android:name="luquelafuente.bernardo.tarea_03bll.PokedexFragment"
-        tools:layout="@layout/fragment_pokemex" />
+        tools:layout="@layout/fragment_pokedex" />
     <fragment
         android:id="@+id/settingsFragment"
         android:name="luquelafuente.bernardo.tarea_03bll.SettingsFragment"

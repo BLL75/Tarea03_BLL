@@ -5,65 +5,57 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-
 import java.util.List;
 
-public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.ViewHolder> {
+public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonViewHolder> {
+    private List<Pokemon> pokemonList;
 
-    private List<Pokemon> pokemonsList;
-
-    public PokemonAdapter(List<Pokemon> pokemonsList) {
-        this.pokemonsList = pokemonsList;
+    public PokemonAdapter(List<Pokemon> pokemonList) {
+        this.pokemonList = pokemonList;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_pokemon, parent, false);
-        return new ViewHolder(view);
+    public PokemonViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_pokemon, parent, false);
+        return new PokemonViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Pokemon pokemon = pokemonsList.get(position);
+    public void onBindViewHolder(@NonNull PokemonViewHolder holder, int position) {
+        Pokemon pokemon = pokemonList.get(position);
         holder.nameTextView.setText(pokemon.getNombre());
-        holder.indiceTextView.setText(String.format("%s%s", holder.itemView.getContext().getString(R.string.pokemon_indice),pokemon.getIndice()));
-        holder.tiposTextView.setText(String.format("%s%s",holder.itemView.getContext().getString(R.string.pokemon_tipos),pokemon.getTipos()));
-        holder.pesoTextView.setText(String.format("%s%s",holder.itemView.getContext().getString(R.string.pokemon_peso),pokemon.getPeso()));
-        holder.alturaTextView.setText(String.format("%s%s",holder.itemView.getContext().getString(R.string.pokemon_altura),pokemon.getAltura()));
-        if(pokemon.getFoto() != null && !pokemon.getFoto().isEmpty()){
-            Glide.with(holder.pokemonImageView.getContext())
-                    .load(pokemon.getFoto())
-                    .into(holder.pokemonImageView);
-        }
+        holder.detailsTextView.setText("ID: " + pokemon.getIndice() + ", Tipo: " + pokemon.getTipos());
+
+        // Cargar la imagen con Glide
+        Glide.with(holder.itemView.getContext())
+                .load(pokemon.getFoto())
+                .into(holder.imageView);
     }
 
     @Override
     public int getItemCount() {
-        return pokemonsList.size();
+        return pokemonList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTextView;
-        TextView indiceTextView;
-        TextView tiposTextView;
-        TextView pesoTextView;
-        TextView alturaTextView;
-        ImageView pokemonImageView;
+    public void updateList(List<Pokemon> newPokemonList) {
+        this.pokemonList = newPokemonList;
+        notifyDataSetChanged();
+    }
 
-        public ViewHolder(@NonNull View itemView) {
+    static class PokemonViewHolder extends RecyclerView.ViewHolder {
+        TextView nameTextView, detailsTextView;
+        ImageView imageView;
+
+        public PokemonViewHolder(@NonNull View itemView) {
             super(itemView);
-            nameTextView = itemView.findViewById(R.id.text_view_pokemon_name);
-            indiceTextView = itemView.findViewById(R.id.text_view_pokemon_indice);
-            tiposTextView = itemView.findViewById(R.id.text_view_pokemon_tipos);
-            pesoTextView = itemView.findViewById(R.id.text_view_pokemon_peso);
-            alturaTextView = itemView.findViewById(R.id.text_view_pokemon_altura);
-            pokemonImageView = itemView.findViewById(R.id.image_view_pokemon);
+            nameTextView = itemView.findViewById(R.id.pokemon_name);
+            detailsTextView = itemView.findViewById(R.id.pokemon_details);
+            imageView = itemView.findViewById(R.id.pokemon_image);
         }
     }
 }
