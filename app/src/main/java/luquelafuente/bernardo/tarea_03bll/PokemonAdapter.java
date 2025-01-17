@@ -11,10 +11,19 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonViewHolder> {
-    private List<Pokemon> pokemonList;
 
-    public PokemonAdapter(List<Pokemon> pokemonList) {
+    private List<Pokemon> pokemonList;
+    private OnItemClickListener listener;
+
+    // Interfaz para el listener
+    public interface OnItemClickListener {
+        void onItemClick(Pokemon pokemon);
+    }
+
+    // Constructor con listener
+    public PokemonAdapter(List<Pokemon> pokemonList, OnItemClickListener listener) {
         this.pokemonList = pokemonList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -35,6 +44,9 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
         Glide.with(holder.itemView.getContext())
                 .load(pokemon.getFoto())
                 .into(holder.imageView);
+
+        // Configurar el evento onClick
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(pokemon));
     }
 
     @Override
