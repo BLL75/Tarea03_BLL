@@ -29,6 +29,8 @@ public class PokedexFragment extends Fragment {
     private PokemonAdapter adapter; // Adaptador del RecyclerView
     private List<Pokemon> pokemonList = new ArrayList<>(); // Lista de Pokémon
 
+    private Toast activeToast; // Variable global para el Toast
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -91,16 +93,15 @@ public class PokedexFragment extends Fragment {
     private void addPokemonToFirestore(Pokemon pokemon) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Comprobar si el Pokémon ya está en la colección
         db.collection("captured_pokemon")
-                .whereEqualTo("nombre", pokemon.getNombre()) // Filtrar por nombre
+                .whereEqualTo("nombre", pokemon.getNombre())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
-                        // Mostrar mensaje: el Pokémon ya está capturado
-                        Toast.makeText(getContext(), "¡Ya tienes a " + pokemon.getNombre() + " en tu colección!", Toast.LENGTH_SHORT).show();
+                        if (isAdded()) {
+                            showToast("¡Ya tienes a " + pokemon.getNombre() + " en tu colección!");
+                        }
                     } else {
-                        // Si no existe, añadirlo
                         Map<String, Object> pokemonData = new HashMap<>();
                         pokemonData.put("nombre", pokemon.getNombre());
                         pokemonData.put("indice", pokemon.getIndice());
@@ -112,15 +113,27 @@ public class PokedexFragment extends Fragment {
                         db.collection("captured_pokemon")
                                 .add(pokemonData)
                                 .addOnSuccessListener(documentReference -> {
-                                    Toast.makeText(getContext(), "¡Has capturado a " + pokemon.getNombre() + "!", Toast.LENGTH_SHORT).show();
+                                    if (isAdded()) {
+                                        showToast("¡Has capturado a " + pokemon.getNombre() + "!");
+                                    }
                                 })
-                                .addOnFailureListener(e -> {
-                                    Log.e("FIRESTORE", "Error al capturar Pokémon", e);
-                                });
+                                .addOnFailureListener(e -> Log.e("FIRESTORE", "Error al capturar Pokémon", e));
                     }
                 })
-                .addOnFailureListener(e -> {
-                    Log.e("FIRESTORE", "Error al verificar la colección", e);
-                });
+                .addOnFailureListener(e -> Log.e("FIRESTORE", "Error al verificar la colección", e));
+    }
+
+    private void showToast(String message) {
+        if (!isAdded()) {
+            Log.w("PokedexFragment", "No se puede mostrar el Toast: el fragmento no está adjunto.");
+            return; // No intentes mostrar el Toast si el fragmento no está adjunto
+        }
+
+        if (activeToast != null) {
+            activeToast.cancel(); // Cancela el Toast anterior si existe
+        }
+
+        activeToast = Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT);
+        activeToast.show();
     }
 }

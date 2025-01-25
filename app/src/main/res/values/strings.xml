@@ -8,4 +8,5 @@
     <string name="pokemon_tipos">Tipos: </string>
     <string name="pokemon_peso">Peso: </string>
     <string name="pokemon_altura">Altura: </string>
+    <string name="pokemon_image">Imagen: </string>
 </resources>

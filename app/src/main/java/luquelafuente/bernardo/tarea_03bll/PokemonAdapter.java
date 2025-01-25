@@ -7,7 +7,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonViewHolder> {
@@ -15,12 +17,12 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
     private List<Pokemon> pokemonList;
     private OnItemClickListener listener;
 
-    // Interfaz para el listener
+    // Interfaz para manejar los clics en los elementos
     public interface OnItemClickListener {
         void onItemClick(Pokemon pokemon);
     }
 
-    // Constructor con listener
+    // Constructor del adaptador
     public PokemonAdapter(List<Pokemon> pokemonList, OnItemClickListener listener) {
         this.pokemonList = pokemonList;
         this.listener = listener;
@@ -37,15 +39,17 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
     @Override
     public void onBindViewHolder(@NonNull PokemonViewHolder holder, int position) {
         Pokemon pokemon = pokemonList.get(position);
-        holder.nameTextView.setText(pokemon.getNombre());
-        holder.detailsTextView.setText("ID: " + pokemon.getIndice() + ", Tipo: " + pokemon.getTipos());
 
-        // Cargar la imagen con Glide
+        // Configurar datos del Pokémon
+        holder.nameTextView.setText(pokemon.getNombre());
+        holder.detailsTextView.setText("Índice: " + pokemon.getIndice() + " | Tipo: " + pokemon.getTipos());
+
+        // Cargar la imagen del Pokémon con Glide
         Glide.with(holder.itemView.getContext())
                 .load(pokemon.getFoto())
                 .into(holder.imageView);
 
-        // Configurar el evento onClick
+        // Configurar el clic en el elemento
         holder.itemView.setOnClickListener(v -> listener.onItemClick(pokemon));
     }
 
@@ -54,11 +58,13 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
         return pokemonList.size();
     }
 
+    // Método para actualizar la lista del adaptador
     public void updateList(List<Pokemon> newPokemonList) {
         this.pokemonList = newPokemonList;
         notifyDataSetChanged();
     }
 
+    // Clase interna para el ViewHolder
     static class PokemonViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView, detailsTextView;
         ImageView imageView;
