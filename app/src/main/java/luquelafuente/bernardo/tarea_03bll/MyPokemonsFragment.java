@@ -1,6 +1,7 @@
 package luquelafuente.bernardo.tarea_03bll;
 
 import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,23 +39,21 @@ public class MyPokemonsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Inicializar el RecyclerView
+        // Configurar el RecyclerView
         recyclerView = view.findViewById(R.id.recycler_view_my_pokemons);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Configurar el adaptador
-        adapter = new PokemonAdapter(
-                pokemonList,
-                this::showPokemonDetails // Mostrar detalles al hacer clic en un Pokémon
-        );
+        adapter = new PokemonAdapter(pokemonList, this::showPokemonDetails);
         recyclerView.setAdapter(adapter);
 
-        // Configurar "Swipe to Delete"
+        // Configurar Swipe to Delete
         enableSwipeToDelete();
 
-        // Cargar los Pokémon capturados desde Firestore
+        // Cargar los Pokémon capturados
         loadCapturedPokemons();
     }
+
 
     @Override
     public void onResume() {
@@ -138,6 +137,11 @@ public class MyPokemonsFragment extends Fragment {
     }
 
     private void enableSwipeToDelete() {
+        if (!isSwipeEnabled()) {
+            Log.d("MyPokemonsFragment", "Swipe to Delete está deshabilitado");
+            return; // No configurar el Swipe si está deshabilitado
+        }
+
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -152,4 +156,11 @@ public class MyPokemonsFragment extends Fragment {
             }
         }).attachToRecyclerView(recyclerView);
     }
+
+
+    private boolean isSwipeEnabled() {
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("settings_preferences", 0);
+        return sharedPreferences.getBoolean("swipe_to_delete_enabled", true); // Por defecto, habilitado
+    }
+
 }
