@@ -5,12 +5,12 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Switch para Swipe to Delete -->
+    <!-- Switch para habilitar Swipe to Delete -->
     <Switch
         android:id="@+id/switch_swipe_to_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Habilitar eliminación deslizando"
+        android:text="@string/switch_swipe_to_delete"
         android:checked="true"
         android:layout_marginBottom="24dp" />
 
@@ -19,7 +19,7 @@
         android:id="@+id/button_about"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Acerca de"
+        android:text="@string/button_about"
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/design_default_color_secondary"
         android:textColor="@android:color/white" />
@@ -29,9 +29,22 @@
         android:id="@+id/buttonLogout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cerrar sesión"
+        android:text="@string/button_logout"
         android:backgroundTint="@color/design_default_color_secondary"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="16dp" />
+        android:textColor="@android:color/white" />
 
+    <!-- Idioma -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_language"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/language_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:entries="@array/language_options" />
 </LinearLayout>
+

@@ -1,12 +1,25 @@
 <resources>
+    <!-- Mensajes de error y autenticación -->
     <string name="error_empty_fields">Por favor, introduce el correo y la contraseña.</string>
     <string name="login_success">Login correcto</string>
-    <string name="login_failed">Authentication failed.</string>
+    <string name="login_failed">Error de autenticación.</string>
     <string name="register_success">Registro correcto</string>
-    <string name="register_failed">Authentication failed.</string>
+    <string name="register_failed">Error de autenticación.</string>
+
+    <!-- Detalles de Pokémon -->
     <string name="pokemon_indice">Índice: </string>
     <string name="pokemon_tipos">Tipos: </string>
     <string name="pokemon_peso">Peso: </string>
     <string name="pokemon_altura">Altura: </string>
     <string name="pokemon_image">Imagen: </string>
+
+    <!-- Ajustes -->
+    <string name="switch_swipe_to_delete">Habilitar eliminación deslizando</string>
+    <string name="button_about">Acerca de</string>
+    <string name="button_logout">Cerrar sesión</string>
+    <string name="about_message">Desarrollador: Bernardo Luque\nVersión: 1.0.0</string>
+    <string name="about_title">Acerca de</string>
+
+    <!-- Idioma -->
+    <string name="select_language">Seleccionar idioma:</string>
 </resources>
