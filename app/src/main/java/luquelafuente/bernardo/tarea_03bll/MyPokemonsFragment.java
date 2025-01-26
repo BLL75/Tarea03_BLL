@@ -23,11 +23,15 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fragmento que muestra la lista de Pokémon capturados.
+ * Proporciona funcionalidad para mostrar detalles y eliminar Pokémon mediante "Swipe to Delete".
+ */
 public class MyPokemonsFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private PokemonAdapter adapter;
-    private List<Pokemon> pokemonList = new ArrayList<>();
+    private final List<Pokemon> pokemonList = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -47,22 +51,24 @@ public class MyPokemonsFragment extends Fragment {
         adapter = new PokemonAdapter(pokemonList, this::showPokemonDetails);
         recyclerView.setAdapter(adapter);
 
-        // Configurar Swipe to Delete
+        // Configurar "Swipe to Delete"
         enableSwipeToDelete();
 
         // Cargar los Pokémon capturados
         loadCapturedPokemons();
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
-        loadCapturedPokemons(); // Recargar los datos cada vez que el fragmento sea visible
+        loadCapturedPokemons(); // Recargar los datos al volver al fragmento
     }
 
+    /**
+     * Carga la lista de Pokémon capturados desde Firebase Firestore.
+     */
     private void loadCapturedPokemons() {
-        Log.d("DEBUG", "Recargando datos de Pokémon capturados");
+        Log.d("MyPokemonsFragment", "Recargando datos de Pokémon capturados");
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("captured_pokemon")
                 .get()
@@ -80,11 +86,16 @@ public class MyPokemonsFragment extends Fragment {
                         pokemonList.add(pokemon);
                     }
                     adapter.notifyDataSetChanged();
-                    Log.d("DEBUG", "Lista de Pokémon recargada. Total: " + pokemonList.size());
+                    Log.d("MyPokemonsFragment", "Lista recargada: " + pokemonList.size() + " Pokémon.");
                 })
-                .addOnFailureListener(e -> Log.e("FIRESTORE", "Error al cargar los Pokémon capturados", e));
+                .addOnFailureListener(e -> Log.e("MyPokemonsFragment", "Error al cargar Pokémon", e));
     }
 
+    /**
+     * Muestra un cuadro de diálogo con los detalles de un Pokémon seleccionado.
+     *
+     * @param pokemon El Pokémon cuyos detalles se mostrarán.
+     */
     private void showPokemonDetails(Pokemon pokemon) {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_pokemon_details, null);
 
@@ -92,21 +103,36 @@ public class MyPokemonsFragment extends Fragment {
         TextView nameTextView = dialogView.findViewById(R.id.pokemon_name);
         TextView detailsTextView = dialogView.findViewById(R.id.pokemon_details);
 
+        // Cargar la imagen del Pokémon
         Glide.with(this).load(pokemon.getFoto()).into(imageView);
-        nameTextView.setText(pokemon.getNombre());
-        detailsTextView.setText(
-                "Índice: " + pokemon.getIndice() +
-                        "\nTipos: " + pokemon.getTipos() +
-                        "\nPeso: " + pokemon.getPeso() +
-                        "\nAltura: " + pokemon.getAltura()
-        );
 
-        new AlertDialog.Builder(getContext())
+        // Configurar el nombre del Pokémon
+        nameTextView.setText(pokemon.getNombre());
+
+        // Configurar los detalles del Pokémon con todos los argumentos
+        String details = getString(
+                R.string.pokemon_details_format,
+                pokemon.getIndice() != null ? pokemon.getIndice() : "-",
+                pokemon.getTipos() != null ? pokemon.getTipos() : getString(R.string.unknown_type),
+                pokemon.getPeso() != null ? pokemon.getPeso() : "-",
+                pokemon.getAltura() != null ? pokemon.getAltura() : "-"
+        );
+        detailsTextView.setText(details);
+
+        // Mostrar el cuadro de diálogo
+        new AlertDialog.Builder(requireContext())
                 .setView(dialogView)
-                .setPositiveButton("Cerrar", null)
+                .setPositiveButton(R.string.close_button, null)
                 .show();
     }
 
+
+
+    /**
+     * Elimina un Pokémon de la base de datos y actualiza la lista local.
+     *
+     * @param pokemon El Pokémon a eliminar.
+     */
     private void deletePokemon(Pokemon pokemon) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -123,23 +149,24 @@ public class MyPokemonsFragment extends Fragment {
                                             pokemonList.remove(position);
                                             adapter.notifyItemRemoved(position);
                                         }
-                                        Log.d("DEBUG", "¡Pokémon eliminado de la lista!");
+                                        Log.d("MyPokemonsFragment", "¡Pokémon eliminado!");
                                     })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("FIRESTORE", "Error al eliminar el Pokémon", e);
-                                    });
+                                    .addOnFailureListener(e -> Log.e("MyPokemonsFragment", "Error al eliminar el Pokémon", e));
                         }
                     } else {
-                        Log.d("DEBUG", "Pokémon no encontrado en Firestore");
+                        Log.d("MyPokemonsFragment", "Pokémon no encontrado.");
                     }
                 })
-                .addOnFailureListener(e -> Log.e("FIRESTORE", "Error al buscar el Pokémon para eliminar", e));
+                .addOnFailureListener(e -> Log.e("MyPokemonsFragment", "Error al buscar el Pokémon", e));
     }
 
+    /**
+     * Configura la funcionalidad de "Swipe to Delete" en el RecyclerView.
+     */
     private void enableSwipeToDelete() {
         if (!isSwipeEnabled()) {
-            Log.d("MyPokemonsFragment", "Swipe to Delete está deshabilitado");
-            return; // No configurar el Swipe si está deshabilitado
+            Log.d("MyPokemonsFragment", "Swipe to Delete deshabilitado");
+            return;
         }
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -157,10 +184,13 @@ public class MyPokemonsFragment extends Fragment {
         }).attachToRecyclerView(recyclerView);
     }
 
-
+    /**
+     * Comprueba si la funcionalidad de "Swipe to Delete" está habilitada.
+     *
+     * @return True si está habilitada, False en caso contrario.
+     */
     private boolean isSwipeEnabled() {
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("settings_preferences", 0);
-        return sharedPreferences.getBoolean("swipe_to_delete_enabled", true); // Por defecto, habilitado
+        return sharedPreferences.getBoolean("swipe_to_delete_enabled", true); // Por defecto habilitado
     }
-
 }

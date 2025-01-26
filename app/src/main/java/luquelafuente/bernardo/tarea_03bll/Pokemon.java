@@ -1,14 +1,33 @@
 package luquelafuente.bernardo.tarea_03bll;
+
+/**
+ * Clase que representa un Pokémon con sus atributos principales.
+ */
 public class Pokemon {
-    private String nombre;
-    private String indice;
-    private String tipos;
-    private String peso;
-    private String altura;
-    private String foto;
 
+    // Atributos de la clase
+    private String nombre; // Nombre del Pokémon
+    private String indice; // Índice de la Pokédex
+    private String tipos;  // Tipos del Pokémon
+    private String peso;   // Peso del Pokémon
+    private String altura; // Altura del Pokémon
+    private String foto;   // URL de la imagen del Pokémon
 
-    public Pokemon(){}
+    /**
+     * Constructor vacío necesario para Firebase y otras librerías.
+     */
+    public Pokemon() {}
+
+    /**
+     * Constructor completo de la clase Pokemon.
+     *
+     * @param nombre Nombre del Pokémon.
+     * @param indice Índice de la Pokédex.
+     * @param tipos Tipos del Pokémon.
+     * @param peso Peso del Pokémon.
+     * @param altura Altura del Pokémon.
+     * @param foto URL de la imagen del Pokémon.
+     */
     public Pokemon(String nombre, String indice, String tipos, String peso, String altura, String foto) {
         this.nombre = nombre;
         this.indice = indice;
@@ -17,6 +36,8 @@ public class Pokemon {
         this.altura = altura;
         this.foto = foto;
     }
+
+    // Getters y setters para cada atributo
 
     public String getNombre() {
         return nombre;
@@ -64,5 +85,22 @@ public class Pokemon {
 
     public void setFoto(String foto) {
         this.foto = foto;
+    }
+
+    /**
+     * Devuelve una representación en String del objeto.
+     *
+     * @return String con los datos principales del Pokémon.
+     */
+    @Override
+    public String toString() {
+        return "Pokemon{" +
+                "nombre='" + nombre + '\'' +
+                ", indice='" + indice + '\'' +
+                ", tipos='" + tipos + '\'' +
+                ", peso='" + peso + '\'' +
+                ", altura='" + altura + '\'' +
+                ", foto='" + foto + '\'' +
+                '}';
     }
 }

@@ -4,43 +4,66 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
+    android:gravity="center_horizontal"
+    android:padding="16dp"
     tools:context=".LoginActivity">
 
+    <!-- Logo o título de la aplicación -->
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginBottom="24dp"
+        android:src="@drawable/ic_pokemon_logo"
+        android:contentDescription="@string/app_name" />
+
+    <!-- Campo para el correo -->
     <EditText
         android:id="@+id/editTextEmailLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:hint="Correo electrónico"
+        android:layout_marginTop="16dp"
+        android:hint="@string/email_hint"
         android:inputType="textEmailAddress" />
 
+    <!-- Campo para la contraseña -->
     <EditText
         android:id="@+id/editTextPasswordLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Contraseña"
-        android:inputType="textPassword"
-        android:layout_margin="16dp"/>
+        android:layout_marginTop="16dp"
+        android:hint="@string/password_hint"
+        android:inputType="textPassword" />
 
+    <!-- Botón de inicio de sesión -->
     <Button
         android:id="@+id/buttonLogin"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Iniciar sesión" />
+        android:layout_marginTop="24dp"
+        android:text="@string/button_login"
+        android:backgroundTint="@color/pokemon_azul"
+        android:textColor="@android:color/white" />
 
+    <!-- Botón para iniciar sesión con Google -->
     <Button
         android:id="@+id/buttonLoginGoogle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Iniciar sesión con Google"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:text="@string/button_login_google"
+        android:backgroundTint="@color/pokemon_azul"
+        android:textColor="@android:color/white" />
 
+    <!-- Enlace para registrarse -->
     <TextView
         android:id="@+id/textViewRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="¿No tienes cuenta? Regístrate aquí"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="24dp"
+        android:text="@string/register_prompt"
+        android:textColor="@color/pokemon_amarillo"
+        android:textStyle="bold"
+        android:gravity="center" />
 
 </LinearLayout>

@@ -1,17 +1,20 @@
 <resources>
-    <!-- Error and Authentication Messages -->
-    <string name="error_empty_fields">Please enter email and password.</string>
+    <!-- Error and authentication messages -->
+    <string name="error_empty_fields">Please, enter your email and password.</string>
     <string name="login_success">Login successful</string>
     <string name="login_failed">Authentication failed.</string>
     <string name="register_success">Registration successful</string>
     <string name="register_failed">Authentication failed.</string>
 
-    <!-- Pokémon Details -->
+    <!-- Pokémon details -->
     <string name="pokemon_indice">Index: </string>
     <string name="pokemon_tipos">Types: </string>
     <string name="pokemon_peso">Weight: </string>
     <string name="pokemon_altura">Height: </string>
-    <string name="pokemon_image">Image: </string>
+    <string name="pokemon_image">Pokemon Image</string>
+    <string name="pokemon_name">Pokemon Name</string>
+    <string name="pokemon_details">Pokemon Details</string>
+
 
     <!-- Settings -->
     <string name="switch_swipe_to_delete">Enable swipe to delete</string>
@@ -22,4 +25,45 @@
 
     <!-- Language -->
     <string name="select_language">Select language:</string>
+
+    <!-- Dialog and Toast -->
+    <string name="close_button">Close</string>
+    <string name="unknown_type">Unknown</string>
+    <string name="pokemon_already_captured">You already have %1$s in your collection!</string>
+    <string name="pokemon_captured">You captured %1$s!</string>
+
+    <!-- Register prompt -->
+
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="button_login">Log in</string>
+    <string name="button_login_google">Log in with Google</string>
+
+    <string name="nav_host_fragment_desc">Fragment container</string>
+    <string name="bottom_navigation_desc">Bottom navigation bar</string>
+
+    <string name="button_register">Register</string>
+    <string name="register_prompt">Already have an account? Sign in here</string>
+    <string name="login_prompt">Register here</string>
+
+    <string name="recycler_view_my_pokemons_desc">List of captured Pokémon</string>
+    <string name="recycler_view_pokedex_desc">List of Pokémon in the Pokédex</string>
+
+    <string name="switch_swipe_to_delete_desc">Enable or disable the swipe-to-delete option</string>
+    <string name="button_about_desc">Open app information</string>
+    <string name="button_logout_desc">Log out of the current session</string>
+    <string name="language_spinner_desc">Select the application language</string>
+
+    <string name="pokemon_image_desc">Pokémon Image</string>
+    <string name="pokemon_name_placeholder">Pokémon Name</string>
+    <string name="pokemon_details_placeholder">Pokédex Index and Type</string>
+    <string name="pokemon_weight_height_placeholder">Weight and Height</string>
+    <string name="pokemon_weight_height_format">Weight: %1$s | Height: %2$s</string>
+
+    <string name="pokemon_details_format">Index: %1$s\nTypes: %2$s\nWeight: %3$s kg\nHeight: %4$s m</string>
+
+
+
+
+
 </resources>

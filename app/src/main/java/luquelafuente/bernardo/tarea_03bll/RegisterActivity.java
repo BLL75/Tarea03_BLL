@@ -13,72 +13,86 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
 
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Clase para gestionar el registro de usuarios en la aplicación.
+ */
 public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button registerButton;
     private TextView loginTextView;
+
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 IdpResponse response = IdpResponse.fromResultIntent(result.getData());
 
                 if (result.getResultCode() == RESULT_OK) {
-                    // Successfully signed in
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    // Redirigir a la actividad principal o a la siguiente pantalla
-                    Toast.makeText(getBaseContext(),"Registro correcto",Toast.LENGTH_LONG).show();
+                    showToast(R.string.register_success);
                     startActivity(new Intent(this, MainActivity.class));
                     finish();
                 } else {
-                    // If sign in fails, display a message to the user.
-                    Toast.makeText(getBaseContext(), "Authentication failed.",
-                            Toast.LENGTH_SHORT).show();
+                    showToast(R.string.register_failed);
                 }
             }
     );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        // Inicializar Firebase Auth
         auth = FirebaseAuth.getInstance();
 
+        // Vincular vistas con sus IDs
         emailEditText = findViewById(R.id.editTextEmailRegister);
         passwordEditText = findViewById(R.id.editTextPasswordRegister);
         registerButton = findViewById(R.id.buttonRegister);
         loginTextView = findViewById(R.id.textViewLogin);
 
+        // Configurar el botón de registro
         registerButton.setOnClickListener(view -> {
-            String email = emailEditText.getText().toString();
-            String password = passwordEditText.getText().toString();
+            String email = emailEditText.getText().toString().trim();
+            String password = passwordEditText.getText().toString().trim();
 
+            if (email.isEmpty() || password.isEmpty()) {
+                showToast(R.string.error_empty_fields);
+                return;
+            }
+
+            // Crear un nuevo usuario en Firebase Authentication
             auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = auth.getCurrentUser();
-                            // Redirigir a la actividad principal o a la siguiente pantalla
-                            Toast.makeText(getBaseContext(),"Registro correcto",Toast.LENGTH_LONG).show();
+                            showToast(R.string.register_success);
                             startActivity(new Intent(this, MainActivity.class));
                             finish();
                         } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(getBaseContext(), "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            showToast(R.string.register_failed);
                         }
                     });
         });
-        loginTextView.setOnClickListener(view ->{
-            startActivity(new Intent(this, LoginActivity.class));
-        });
+
+        // Configurar el enlace para volver al login
+        loginTextView.setOnClickListener(view -> startActivity(new Intent(this, LoginActivity.class)));
+    }
+
+    /**
+     * Muestra un Toast con el mensaje especificado.
+     *
+     * @param messageResId ID del recurso de texto a mostrar.
+     */
+    private void showToast(int messageResId) {
+        Toast.makeText(this, getString(messageResId), Toast.LENGTH_SHORT).show();
     }
 }

@@ -12,6 +12,9 @@
     <string name="pokemon_peso">Peso: </string>
     <string name="pokemon_altura">Altura: </string>
     <string name="pokemon_image">Imagen: </string>
+    <string name="pokemon_name">Nombre del Pokémon</string>
+    <string name="pokemon_details">Detalles del Pokémon</string>
+
 
     <!-- Ajustes -->
     <string name="switch_swipe_to_delete">Habilitar eliminación deslizando</string>
@@ -22,4 +25,44 @@
 
     <!-- Idioma -->
     <string name="select_language">Seleccionar idioma:</string>
+
+    <string name="close_button">Cerrar</string>
+
+    <string name="unknown_type">Desconocido</string>
+    <string name="pokemon_already_captured">¡Ya tienes a %1$s en tu colección!</string>
+    <string name="pokemon_captured">¡Has capturado a %1$s!</string>
+
+
+    <string name="email_hint">Correo electrónico</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="button_login">Iniciar sesión</string>
+    <string name="button_login_google">Iniciar sesión con Google</string>
+
+    <string name="nav_host_fragment_desc">Contenedor de fragmentos</string>
+    <string name="bottom_navigation_desc">Barra de navegación inferior</string>
+
+    <string name="button_register">Regístrate</string>
+    <string name="register_prompt">¿Ya tienes cuenta? Inicia sesión aquí</string>
+    <string name="login_prompt">¿No tienes cuenta? Regístrate aquí</string>"
+
+    <string name="recycler_view_my_pokemons_desc">Lista de Pokémon capturados</string>
+
+    <string name="recycler_view_pokedex_desc">Lista de Pokémon en la Pokédex</string>
+
+
+    <string name="switch_swipe_to_delete_desc">Habilitar o deshabilitar la opción de deslizar para eliminar</string>
+    <string name="button_about_desc">Abrir información acerca de la aplicación</string>
+    <string name="button_logout_desc">Cerrar la sesión actual</string>
+    <string name="language_spinner_desc">Seleccionar el idioma de la aplicación</string>
+
+    <string name="pokemon_image_desc">Imagen del Pokémon</string>
+    <string name="pokemon_name_placeholder">Nombre del Pokémon</string>
+    <string name="pokemon_details_placeholder">Índice y Tipo del Pokémon</string>
+    <string name="pokemon_weight_height_placeholder">Peso y Altura del Pokémon</string>
+    <string name="pokemon_weight_height_format">Peso: %1$s | Altura: %2$s</string>
+
+    <string name="pokemon_details_format">Índice: %1$s\nTipos: %2$s\nPeso: %3$s kg\nAltura: %4$s m</string>
+
+
+
 </resources>

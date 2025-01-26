@@ -5,16 +5,17 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Switch para habilitar Swipe to Delete -->
+    <!-- Switch para habilitar o deshabilitar Swipe to Delete -->
     <Switch
         android:id="@+id/switch_swipe_to_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/switch_swipe_to_delete"
         android:checked="true"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="24dp"
+        android:contentDescription="@string/switch_swipe_to_delete_desc" />
 
-    <!-- Botón de Acerca de -->
+    <!-- Botón para abrir el diálogo "Acerca de" -->
     <Button
         android:id="@+id/button_about"
         android:layout_width="match_parent"
@@ -22,29 +23,34 @@
         android:text="@string/button_about"
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/design_default_color_secondary"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:contentDescription="@string/button_about_desc" />
 
-    <!-- Botón de Cerrar Sesión -->
+    <!-- Botón para cerrar sesión -->
     <Button
         android:id="@+id/buttonLogout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/button_logout"
         android:backgroundTint="@color/design_default_color_secondary"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:contentDescription="@string/button_logout_desc" />
 
-    <!-- Idioma -->
+    <!-- Texto para seleccionar el idioma -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/select_language"
         android:layout_marginBottom="8dp" />
 
+    <!-- Spinner para elegir el idioma -->
     <Spinner
         android:id="@+id/language_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:entries="@array/language_options" />
+        android:entries="@array/language_options"
+        android:contentDescription="@string/language_spinner_desc" />
+
 </LinearLayout>
 

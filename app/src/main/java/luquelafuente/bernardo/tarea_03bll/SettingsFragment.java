@@ -21,6 +21,10 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Locale;
 
+/**
+ * Fragmento para gestionar los ajustes de la aplicación, incluyendo idioma,
+ * swipe para eliminar, información "Acerca de" y cerrar sesión.
+ */
 public class SettingsFragment extends Fragment {
 
     private Button buttonLogout;
@@ -39,6 +43,7 @@ public class SettingsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
+        // Inicializar vistas
         buttonLogout = view.findViewById(R.id.buttonLogout);
         buttonAbout = view.findViewById(R.id.button_about);
         swipeToDeleteSwitch = view.findViewById(R.id.switch_swipe_to_delete);
@@ -46,9 +51,10 @@ public class SettingsFragment extends Fragment {
 
         auth = FirebaseAuth.getInstance();
 
+        // Configurar SharedPreferences
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, 0);
 
-        // Configurar el estado del switch
+        // Configurar el estado del switch de Swipe to Delete
         boolean isSwipeEnabled = sharedPreferences.getBoolean(KEY_SWIPE_TO_DELETE, true);
         swipeToDeleteSwitch.setChecked(isSwipeEnabled);
         swipeToDeleteSwitch.setText(getString(R.string.switch_swipe_to_delete));
@@ -67,7 +73,7 @@ public class SettingsFragment extends Fragment {
                 String selectedLanguage = (position == 0) ? "es" : "en";
                 Log.d("LANGUAGE", "Idioma seleccionado: " + selectedLanguage);
 
-                // Solo cambiar el idioma si el seleccionado es diferente al actual
+                // Solo cambiar el idioma si es diferente del actual
                 if (!selectedLanguage.equals(currentLanguage)) {
                     sharedPreferences.edit().putString(KEY_LANGUAGE, selectedLanguage).apply();
                     setLocale(selectedLanguage);
@@ -76,12 +82,14 @@ public class SettingsFragment extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Nada que hacer aquí
+                // No se seleccionó nada
             }
         });
 
+        // Configurar el botón "Acerca de"
         buttonAbout.setOnClickListener(v -> showAboutDialog());
 
+        // Configurar el botón "Cerrar sesión"
         buttonLogout.setOnClickListener(v -> {
             auth.signOut();
             startActivity(new Intent(getContext(), LoginActivity.class));
@@ -91,6 +99,11 @@ public class SettingsFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Cambia el idioma de la aplicación y reinicia la actividad actual para aplicar el cambio.
+     *
+     * @param languageCode Código del idioma seleccionado (e.g., "es", "en").
+     */
     private void setLocale(String languageCode) {
         Locale locale = new Locale(languageCode);
         Locale.setDefault(locale);
@@ -102,10 +115,13 @@ public class SettingsFragment extends Fragment {
 
         Log.d("LANGUAGE", "Idioma cambiado a: " + languageCode);
 
-        // Reiniciar la actividad
+        // Reiniciar la actividad para aplicar los cambios
         requireActivity().recreate();
     }
 
+    /**
+     * Muestra un cuadro de diálogo "Acerca de" con información sobre el desarrollador y la versión.
+     */
     private void showAboutDialog() {
         new AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.about_title))

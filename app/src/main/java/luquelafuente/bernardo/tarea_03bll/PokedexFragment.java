@@ -25,36 +25,36 @@ import retrofit2.Response;
 
 public class PokedexFragment extends Fragment {
 
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerView; // RecyclerView para mostrar la lista de Pokémon
     private PokemonAdapter adapter; // Adaptador del RecyclerView
     private List<Pokemon> pokemonList = new ArrayList<>(); // Lista de Pokémon
-
-    private Toast activeToast; // Variable global para el Toast
+    private Toast activeToast; // Referencia al Toast activo, para evitar superposición
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_pokedex, container, false); // Infla el diseño del Fragment
+        return inflater.inflate(R.layout.fragment_pokedex, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Inicializar el RecyclerView
+        // Inicializar RecyclerView
         recyclerView = view.findViewById(R.id.recycler_view_pokedex);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Configurar el adaptador con un listener para capturar Pokémon
-        adapter = new PokemonAdapter(pokemonList, pokemon -> {
-            addPokemonToFirestore(pokemon); // Llama al método para capturar Pokémon
-        });
+        adapter = new PokemonAdapter(pokemonList, this::addPokemonToFirestore);
         recyclerView.setAdapter(adapter);
 
         // Cargar los datos desde la API
         loadPokemon();
     }
 
+    /**
+     * Carga la lista de Pokémon desde la API de Pokémon usando Retrofit.
+     */
     private void loadPokemon() {
         PokemonApi api = ApiClient.getClient().create(PokemonApi.class);
 
@@ -63,18 +63,10 @@ public class PokedexFragment extends Fragment {
             public void onResponse(Call<PokemonResponse> call, Response<PokemonResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     for (PokemonResponse.Result result : response.body().getResults()) {
-                        Pokemon pokemon = new Pokemon(
-                                result.getName(),
-                                extractPokemonId(result.getUrl()),
-                                "Desconocido",
-                                "0",
-                                "0",
-                                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" +
-                                        extractPokemonId(result.getUrl()) + ".png"
-                        );
-                        pokemonList.add(pokemon);
+                        // Extraer ID del Pokémon y cargar detalles
+                        String pokemonId = extractPokemonId(result.getUrl());
+                        fetchPokemonDetails(pokemonId);
                     }
-                    adapter.notifyDataSetChanged(); // Notifica al adaptador que los datos han cambiado
                 }
             }
 
@@ -85,11 +77,66 @@ public class PokedexFragment extends Fragment {
         });
     }
 
-    private String extractPokemonId(String url) {
-        String[] segments = url.split("/"); // Divide la URL por "/"
-        return segments[segments.length - 1]; // Devuelve el último segmento (ID del Pokémon)
+    /**
+     * Carga los detalles de un Pokémon específico desde la API.
+     *
+     * @param pokemonId ID del Pokémon.
+     */
+    private void fetchPokemonDetails(String pokemonId) {
+        PokemonApi api = ApiClient.getClient().create(PokemonApi.class);
+
+        api.getPokemonDetails(pokemonId).enqueue(new Callback<PokemonDetail>() {
+            @Override
+            public void onResponse(Call<PokemonDetail> call, Response<PokemonDetail> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PokemonDetail details = response.body();
+
+                    // Procesar tipos de Pokémon
+                    StringBuilder tipos = new StringBuilder();
+                    for (PokemonDetail.TypeWrapper typeWrapper : details.getTypes()) {
+                        if (tipos.length() > 0) tipos.append(", ");
+                        tipos.append(typeWrapper.getType().getName());
+                    }
+
+                    // Crear objeto Pokémon con los detalles
+                    Pokemon pokemon = new Pokemon(
+                            details.getName(),
+                            String.valueOf(details.getId()),
+                            tipos.toString(),
+                            String.valueOf(details.getWeight()),
+                            String.valueOf(details.getHeight()),
+                            details.getSprites().getFrontDefault()
+                    );
+
+                    // Añadir a la lista y actualizar el adaptador
+                    pokemonList.add(pokemon);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PokemonDetail> call, Throwable t) {
+                Log.e("API_ERROR", "Error al cargar detalles del Pokémon: " + t.getMessage());
+            }
+        });
     }
 
+    /**
+     * Extrae el ID de un Pokémon a partir de su URL.
+     *
+     * @param url URL del Pokémon.
+     * @return ID del Pokémon como cadena.
+     */
+    private String extractPokemonId(String url) {
+        String[] segments = url.split("/");
+        return segments[segments.length - 1];
+    }
+
+    /**
+     * Añade un Pokémon capturado a Firestore.
+     *
+     * @param pokemon Pokémon a capturar.
+     */
     private void addPokemonToFirestore(Pokemon pokemon) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -98,9 +145,7 @@ public class PokedexFragment extends Fragment {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
-                        if (isAdded()) {
-                            showToast("¡Ya tienes a " + pokemon.getNombre() + " en tu colección!");
-                        }
+                        showToast(getString(R.string.pokemon_already_captured, pokemon.getNombre()));
                     } else {
                         Map<String, Object> pokemonData = new HashMap<>();
                         pokemonData.put("nombre", pokemon.getNombre());
@@ -113,9 +158,7 @@ public class PokedexFragment extends Fragment {
                         db.collection("captured_pokemon")
                                 .add(pokemonData)
                                 .addOnSuccessListener(documentReference -> {
-                                    if (isAdded()) {
-                                        showToast("¡Has capturado a " + pokemon.getNombre() + "!");
-                                    }
+                                    showToast(getString(R.string.pokemon_captured, pokemon.getNombre()));
                                 })
                                 .addOnFailureListener(e -> Log.e("FIRESTORE", "Error al capturar Pokémon", e));
                     }
@@ -123,14 +166,19 @@ public class PokedexFragment extends Fragment {
                 .addOnFailureListener(e -> Log.e("FIRESTORE", "Error al verificar la colección", e));
     }
 
+    /**
+     * Muestra un Toast con el mensaje especificado.
+     *
+     * @param message Mensaje a mostrar.
+     */
     private void showToast(String message) {
         if (!isAdded()) {
-            Log.w("PokedexFragment", "No se puede mostrar el Toast: el fragmento no está adjunto.");
-            return; // No intentes mostrar el Toast si el fragmento no está adjunto
+            Log.w("PokedexFragment", "El fragmento no está adjunto. No se puede mostrar el Toast.");
+            return;
         }
 
         if (activeToast != null) {
-            activeToast.cancel(); // Cancela el Toast anterior si existe
+            activeToast.cancel();
         }
 
         activeToast = Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT);
