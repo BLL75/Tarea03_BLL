@@ -62,6 +62,8 @@
 
     <string name="pokemon_details_format">Index: %1$s\nTypes: %2$s\nWeight: %3$s kg\nHeight: %4$s m</string>
 
+    <string name="logout_title">Log out</string>
+    <string name="logout_message">Are you sure you want to log out?</string>
 
 
 

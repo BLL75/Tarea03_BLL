@@ -63,6 +63,10 @@
 
     <string name="pokemon_details_format">Índice: %1$s\nTipos: %2$s\nPeso: %3$s kg\nAltura: %4$s m</string>
 
+    <string name="logout_title">Cerrar sesión</string>
+    <string name="logout_message">¿Estás seguro de que quieres cerrar tu sesión de usuario?</string>
+
+
 
 
 </resources>

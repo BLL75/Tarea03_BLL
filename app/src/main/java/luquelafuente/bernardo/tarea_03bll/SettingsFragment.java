@@ -90,11 +90,7 @@ public class SettingsFragment extends Fragment {
         buttonAbout.setOnClickListener(v -> showAboutDialog());
 
         // Configurar el botón "Cerrar sesión"
-        buttonLogout.setOnClickListener(v -> {
-            auth.signOut();
-            startActivity(new Intent(getContext(), LoginActivity.class));
-            requireActivity().finish();
-        });
+        buttonLogout.setOnClickListener(v -> showLogoutDialog());
 
         return view;
     }
@@ -127,6 +123,23 @@ public class SettingsFragment extends Fragment {
                 .setTitle(getString(R.string.about_title))
                 .setMessage(getString(R.string.about_message))
                 .setPositiveButton(getString(android.R.string.ok), null)
+                .show();
+    }
+
+    /**
+     * Muestra un cuadro de diálogo de confirmación para cerrar sesión.
+     */
+    private void showLogoutDialog() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.logout_title)) // Título del diálogo
+                .setMessage(getString(R.string.logout_message)) // Mensaje del diálogo
+                .setPositiveButton(getString(android.R.string.yes), (dialog, which) -> {
+                    // Acción de cerrar sesión
+                    auth.signOut();
+                    startActivity(new Intent(getContext(), LoginActivity.class));
+                    requireActivity().finish(); // Finaliza la actividad actual
+                })
+                .setNegativeButton(getString(android.R.string.no), null) // Botón para cancelar
                 .show();
     }
 }
