@@ -42,8 +42,8 @@
     <string name="bottom_navigation_desc">Barra de navegación inferior</string>
 
     <string name="button_register">Regístrate</string>
-    <string name="register_prompt">¿Ya tienes cuenta? Inicia sesión aquí</string>
-    <string name="login_prompt">¿No tienes cuenta? Regístrate aquí</string>"
+    <string name="login_prompt">¿Ya tienes cuenta? Inicia sesión aquí</string>
+    <string name="register_prompt">¿No tienes cuenta? Regístrate aquí</string>
 
     <string name="recycler_view_my_pokemons_desc">Lista de Pokémon capturados</string>
 

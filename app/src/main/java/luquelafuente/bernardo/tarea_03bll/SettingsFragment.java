@@ -13,9 +13,11 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Switch;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -33,11 +35,11 @@ public class SettingsFragment extends Fragment {
     private Spinner languageSpinner;
 
     private FirebaseAuth auth;
+    private SharedPreferences sharedPreferences;
 
     // Claves para SharedPreferences
-    private static final String PREFS_NAME = "settings_preferences";
     private static final String KEY_SWIPE_TO_DELETE = "swipe_to_delete_enabled";
-    private static final String KEY_LANGUAGE = "app_language";
+    private static final String KEY_LANGUAGE = "language";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -51,40 +53,14 @@ public class SettingsFragment extends Fragment {
 
         auth = FirebaseAuth.getInstance();
 
-        // Configurar SharedPreferences
-        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, 0);
+        // Usar PreferenceManager para obtener SharedPreferences
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
 
         // Configurar el estado del switch de Swipe to Delete
-        boolean isSwipeEnabled = sharedPreferences.getBoolean(KEY_SWIPE_TO_DELETE, true);
-        swipeToDeleteSwitch.setChecked(isSwipeEnabled);
-        swipeToDeleteSwitch.setText(getString(R.string.switch_swipe_to_delete));
-
-        swipeToDeleteSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sharedPreferences.edit().putBoolean(KEY_SWIPE_TO_DELETE, isChecked).apply();
-        });
+        setupSwipeToDeleteSwitch();
 
         // Configurar el Spinner de idioma
-        String currentLanguage = sharedPreferences.getString(KEY_LANGUAGE, "es");
-        languageSpinner.setSelection(currentLanguage.equals("es") ? 0 : 1);
-
-        languageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedLanguage = (position == 0) ? "es" : "en";
-                Log.d("LANGUAGE", "Idioma seleccionado: " + selectedLanguage);
-
-                // Solo cambiar el idioma si es diferente del actual
-                if (!selectedLanguage.equals(currentLanguage)) {
-                    sharedPreferences.edit().putString(KEY_LANGUAGE, selectedLanguage).apply();
-                    setLocale(selectedLanguage);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // No se seleccionó nada
-            }
-        });
+        setupLanguageSpinner();
 
         // Configurar el botón "Acerca de"
         buttonAbout.setOnClickListener(v -> showAboutDialog());
@@ -95,6 +71,47 @@ public class SettingsFragment extends Fragment {
         return view;
     }
 
+    private void setupSwipeToDeleteSwitch() {
+        boolean isSwipeEnabled = sharedPreferences.getBoolean(KEY_SWIPE_TO_DELETE, true);
+        swipeToDeleteSwitch.setChecked(isSwipeEnabled);
+        swipeToDeleteSwitch.setText(getString(R.string.switch_swipe_to_delete));
+
+        swipeToDeleteSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sharedPreferences.edit().putBoolean(KEY_SWIPE_TO_DELETE, isChecked).apply();
+        });
+    }
+
+    private void setupLanguageSpinner() {
+        // Configurar el Spinner de idioma
+        String currentLanguage = sharedPreferences.getString(KEY_LANGUAGE, "es");
+        languageSpinner.setSelection(getLanguagePosition(currentLanguage));
+
+        languageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedLanguage = (position == 0) ? "es" : "en";
+                Log.d("LANGUAGE", "Idioma seleccionado: " + selectedLanguage);
+
+                // Obtener el idioma actual de las preferencias
+                String currentLanguage = sharedPreferences.getString(KEY_LANGUAGE, "es");
+
+                // Solo cambiar el idioma si es diferente del actual
+                if (!selectedLanguage.equals(currentLanguage)) {
+                    sharedPreferences.edit().putString(KEY_LANGUAGE, selectedLanguage).apply();
+                    setLocale(selectedLanguage);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private int getLanguagePosition(String language) {
+        return language.equals("es") ? 0 : 1;
+    }
+
     /**
      * Cambia el idioma de la aplicación y reinicia la actividad actual para aplicar el cambio.
      *
@@ -103,16 +120,13 @@ public class SettingsFragment extends Fragment {
     private void setLocale(String languageCode) {
         Locale locale = new Locale(languageCode);
         Locale.setDefault(locale);
-
         Configuration config = new Configuration();
         config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
 
-        requireActivity().getResources().updateConfiguration(config, requireActivity().getResources().getDisplayMetrics());
-
-        Log.d("LANGUAGE", "Idioma cambiado a: " + languageCode);
-
-        // Reiniciar la actividad para aplicar los cambios
-        requireActivity().recreate();
+        // Reiniciar la actividad principal para que los cambios de idioma tengan efecto
+        requireActivity().finish();
+        startActivity(requireActivity().getIntent());
     }
 
     /**

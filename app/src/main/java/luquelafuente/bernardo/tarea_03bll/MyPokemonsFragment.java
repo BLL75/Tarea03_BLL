@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -32,6 +33,9 @@ public class MyPokemonsFragment extends Fragment {
     private RecyclerView recyclerView;
     private PokemonAdapter adapter;
     private final List<Pokemon> pokemonList = new ArrayList<>();
+
+    private FirebaseAuth auth;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -51,6 +55,10 @@ public class MyPokemonsFragment extends Fragment {
         adapter = new PokemonAdapter(pokemonList, this::showPokemonDetails);
         recyclerView.setAdapter(adapter);
 
+        // Inicializar FirebaseAuth
+        auth = FirebaseAuth.getInstance();
+
+
         // Configurar "Swipe to Delete"
         enableSwipeToDelete();
 
@@ -68,9 +76,12 @@ public class MyPokemonsFragment extends Fragment {
      * Carga la lista de Pokémon capturados desde Firebase Firestore.
      */
     private void loadCapturedPokemons() {
-        Log.d("MyPokemonsFragment", "Recargando datos de Pokémon capturados");
+        FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("captured_pokemon")
+        String userId = auth.getCurrentUser().getUid(); // Obtener el UID del usuario actual
+
+        db.collection("captured_pokemon").document(userId)
+                .collection("user_pokemon")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     pokemonList.clear();
@@ -90,6 +101,7 @@ public class MyPokemonsFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> Log.e("MyPokemonsFragment", "Error al cargar Pokémon", e));
     }
+
 
     /**
      * Muestra un cuadro de diálogo con los detalles de un Pokémon seleccionado.
@@ -137,6 +149,8 @@ public class MyPokemonsFragment extends Fragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("captured_pokemon")
+                .document(auth.getCurrentUser().getUid()) // Usa el UID del usuario
+                .collection("user_pokemon")
                 .whereEqualTo("nombre", pokemon.getNombre())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -159,6 +173,7 @@ public class MyPokemonsFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> Log.e("MyPokemonsFragment", "Error al buscar el Pokémon", e));
     }
+
 
     /**
      * Configura la funcionalidad de "Swipe to Delete" en el RecyclerView.

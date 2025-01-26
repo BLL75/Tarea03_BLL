@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -138,9 +139,12 @@ public class PokedexFragment extends Fragment {
      * @param pokemon Pokémon a capturar.
      */
     private void addPokemonToFirestore(Pokemon pokemon) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userId = auth.getCurrentUser().getUid(); // Obtener el UID del usuario actual
 
-        db.collection("captured_pokemon")
+        db.collection("captured_pokemon").document(userId)
+                .collection("user_pokemon")
                 .whereEqualTo("nombre", pokemon.getNombre())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -155,7 +159,8 @@ public class PokedexFragment extends Fragment {
                         pokemonData.put("altura", pokemon.getAltura());
                         pokemonData.put("foto", pokemon.getFoto());
 
-                        db.collection("captured_pokemon")
+                        db.collection("captured_pokemon").document(userId)
+                                .collection("user_pokemon")
                                 .add(pokemonData)
                                 .addOnSuccessListener(documentReference -> {
                                     showToast(getString(R.string.pokemon_captured, pokemon.getNombre()));
@@ -165,6 +170,7 @@ public class PokedexFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> Log.e("FIRESTORE", "Error al verificar la colección", e));
     }
+
 
     /**
      * Muestra un Toast con el mensaje especificado.

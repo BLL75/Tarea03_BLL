@@ -43,8 +43,8 @@
     <string name="bottom_navigation_desc">Bottom navigation bar</string>
 
     <string name="button_register">Register</string>
-    <string name="register_prompt">Already have an account? Sign in here</string>
-    <string name="login_prompt">Register here</string>
+    <string name="login_prompt">Already have an account? Sign in here</string>
+    <string name="register_prompt">Register here</string>
 
     <string name="recycler_view_my_pokemons_desc">List of captured Pokémon</string>
     <string name="recycler_view_pokedex_desc">List of Pokémon in the Pokédex</string>
