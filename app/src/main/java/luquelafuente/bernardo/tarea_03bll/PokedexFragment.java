@@ -6,14 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,100 +23,106 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PokedexFragment extends Fragment {
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-    private RecyclerView recyclerView; // RecyclerView para mostrar la lista de Pokémon
-    private PokemonAdapter adapter; // Adaptador del RecyclerView
-    private List<Pokemon> pokemonList = new ArrayList<>(); // Lista de Pokémon
-    private Toast activeToast; // Referencia al Toast activo, para evitar superposición
+public class PokedexFragment extends Fragment implements PokemonAdapter.OnItemClickListener {
+
+    private static final String TAG = "PokedexFragment";
+    private RecyclerView recyclerView;
+    private PokemonAdapter adapter;
+    private List<Pokemon> pokemonList = new ArrayList<>();
+    private PokemonApi pokemonApi;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private Toast activeToast;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_pokedex, container, false);
-    }
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_pokedex, container, false);
+        recyclerView = view.findViewById(R.id.recycler_view);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // Inicializar RecyclerView
-        recyclerView = view.findViewById(R.id.recycler_view_pokedex);
+        // Usar LinearLayoutManager para una lista vertical
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Configurar el adaptador con un listener para capturar Pokémon
-        adapter = new PokemonAdapter(pokemonList, this::addPokemonToFirestore);
+        // Pasar 'true' para indicar que es la Pokédex general y 'this' como listener para el clic
+        adapter = new PokemonAdapter(pokemonList, true, getContext(), this);
         recyclerView.setAdapter(adapter);
 
-        // Cargar los datos desde la API
-        loadPokemon();
+        pokemonApi = ApiClient.getClient().create(PokemonApi.class);
+        fetchPokemonList();
+
+        swipeRefreshLayout.setOnRefreshListener(this::fetchPokemonList);
+
+        return view;
     }
 
-    /**
-     * Carga la lista de Pokémon desde la API de Pokémon usando Retrofit.
-     */
-    private void loadPokemon() {
-        PokemonApi api = ApiClient.getClient().create(PokemonApi.class);
+    // Implementar el método onItemClick de la interfaz OnItemClickListener
+    @Override
+    public void onItemClick(Pokemon pokemon) {
+        // Acción a realizar al hacer clic en un Pokémon (capturarlo)
+        addPokemonToFirestore(pokemon);
+    }
 
-        api.getPokemonList(0, 150).enqueue(new Callback<PokemonResponse>() {
+    private void fetchPokemonList() {
+        Call<PokemonResponse> call = pokemonApi.getPokemonList(150, 0);
+        call.enqueue(new Callback<PokemonResponse>() {
             @Override
-            public void onResponse(Call<PokemonResponse> call, Response<PokemonResponse> response) {
+            public void onResponse(@NonNull Call<PokemonResponse> call, @NonNull Response<PokemonResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    for (PokemonResponse.Result result : response.body().getResults()) {
-                        // Extraer ID del Pokémon y cargar detalles
-                        String pokemonId = extractPokemonId(result.getUrl());
-                        fetchPokemonDetails(pokemonId);
+                    pokemonList.clear();
+                    // Usar PokemonResponse.Result correctamente
+                    List<PokemonResponse.Result> results = response.body().getResults();
+                    for (PokemonResponse.Result result : results) {
+                        fetchPokemonDetails(result.getName());
                     }
+                } else {
+                    Log.e(TAG, "Error fetching Pokemon list: " + response.code());
                 }
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
-            public void onFailure(Call<PokemonResponse> call, Throwable t) {
-                Log.e("API_ERROR", "Error al cargar los datos: " + t.getMessage());
+            public void onFailure(@NonNull Call<PokemonResponse> call, @NonNull Throwable t) {
+                Log.e(TAG, "Error fetching Pokemon list", t);
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
-    /**
-     * Carga los detalles de un Pokémon específico desde la API.
-     *
-     * @param pokemonId ID del Pokémon.
-     */
-    private void fetchPokemonDetails(String pokemonId) {
-        PokemonApi api = ApiClient.getClient().create(PokemonApi.class);
-
-        api.getPokemonDetails(pokemonId).enqueue(new Callback<PokemonDetail>() {
+    private void fetchPokemonDetails(String name) {
+        Call<PokemonDetail> call = pokemonApi.getPokemonDetails(name);
+        call.enqueue(new Callback<PokemonDetail>() {
             @Override
-            public void onResponse(Call<PokemonDetail> call, Response<PokemonDetail> response) {
+            public void onResponse(@NonNull Call<PokemonDetail> call, @NonNull Response<PokemonDetail> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    PokemonDetail details = response.body();
+                    PokemonDetail detail = response.body();
+                    String imageUrl = "https://img.pokemondb.net/artwork/large/" + name + ".jpg";
+                    String type1 = detail.getTypes().get(0).getType().getName();
+                    String type2 = detail.getTypes().size() > 1 ? detail.getTypes().get(1).getType().getName() : "";
+                    String weight = String.valueOf(detail.getWeight());
+                    String height = String.valueOf(detail.getHeight());
 
-                    // Procesar tipos de Pokémon
-                    StringBuilder tipos = new StringBuilder();
-                    for (PokemonDetail.TypeWrapper typeWrapper : details.getTypes()) {
-                        if (tipos.length() > 0) tipos.append(", ");
-                        tipos.append(typeWrapper.getType().getName());
-                    }
-
-                    // Crear objeto Pokémon con los detalles
+                    // Asegúrate de que el constructor de Pokemon acepta los argumentos en el orden correcto
                     Pokemon pokemon = new Pokemon(
-                            details.getName(),
-                            String.valueOf(details.getId()),
-                            tipos.toString(),
-                            String.valueOf(details.getWeight()),
-                            String.valueOf(details.getHeight()),
-                            details.getSprites().getFrontDefault()
+                            name,
+                            String.valueOf(detail.getId()), // Pasando el índice como String
+                            type1 + (type2.isEmpty() ? "" : ", " + type2), // Concatenando los tipos
+                            weight,
+                            height,
+                            imageUrl
                     );
 
-                    // Añadir a la lista y actualizar el adaptador
                     pokemonList.add(pokemon);
-                    adapter.notifyDataSetChanged();
+                    adapter.notifyItemInserted(pokemonList.size() - 1);
+                } else {
+                    Log.e(TAG, "Error fetching details for Pokemon: " + name + ", error code: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(Call<PokemonDetail> call, Throwable t) {
-                Log.e("API_ERROR", "Error al cargar detalles del Pokémon: " + t.getMessage());
+            public void onFailure(@NonNull Call<PokemonDetail> call, @NonNull Throwable t) {
+                Log.e(TAG, "Error fetching Pokemon details for: " + name, t);
             }
         });
     }
@@ -170,7 +175,6 @@ public class PokedexFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> Log.e("FIRESTORE", "Error al verificar la colección", e));
     }
-
 
     /**
      * Muestra un Toast con el mensaje especificado.

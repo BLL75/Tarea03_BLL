@@ -1,10 +1,12 @@
 package luquelafuente.bernardo.tarea_03bll;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,18 +21,17 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
 
     // Lista de Pokémon que se mostrará
     private List<Pokemon> pokemonList;
-    // Listener para manejar los clics en los elementos de la lista
+    // Listener para manejar los clics en los elementos de la lista (usado en PokedexFragment)
     private OnItemClickListener listener;
+    // Indica si el adaptador se está usando para la Pokedex (true) o para "Mis Pokémons" (false)
+    private boolean isPokedex;
+    // Contexto para acceder a recursos, como strings
+    private Context context;
 
     /**
      * Interfaz para manejar eventos de clic en los elementos.
      */
     public interface OnItemClickListener {
-        /**
-         * Método que se ejecutará cuando se haga clic en un Pokémon.
-         *
-         * @param pokemon El Pokémon seleccionado.
-         */
         void onItemClick(Pokemon pokemon);
     }
 
@@ -38,10 +39,14 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
      * Constructor del adaptador.
      *
      * @param pokemonList Lista de Pokémon a mostrar.
-     * @param listener    Listener para manejar eventos de clic.
+     * @param isPokedex   Indica si el adaptador se usa para la Pokedex (true) o para "Mis Pokémons" (false).
+     * @param context     Contexto de la aplicación.
+     * @param listener    Listener para manejar los clics en los elementos (puede ser null si no se necesita).
      */
-    public PokemonAdapter(List<Pokemon> pokemonList, OnItemClickListener listener) {
+    public PokemonAdapter(List<Pokemon> pokemonList, boolean isPokedex, Context context, OnItemClickListener listener) {
         this.pokemonList = pokemonList;
+        this.isPokedex = isPokedex;
+        this.context = context;
         this.listener = listener;
     }
 
@@ -61,17 +66,17 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
         // Configurar los textos usando getContext().getString() para los placeholders
         holder.nameTextView.setText(pokemon.getNombre());
         holder.detailsTextView.setText(
-                holder.itemView.getContext().getString(
+                context.getString(
                         R.string.pokemon_details_format,
                         pokemon.getIndice() != null ? pokemon.getIndice() : "-",
-                        pokemon.getTipos() != null ? pokemon.getTipos() : "Desconocido",
+                        pokemon.getTipos() != null ? pokemon.getTipos() : context.getString(R.string.unknown_type),
                         pokemon.getPeso() != null ? pokemon.getPeso() : "-",
                         pokemon.getAltura() != null ? pokemon.getAltura() : "-"
                 )
         );
 
         holder.weightHeightTextView.setText(
-                holder.itemView.getContext().getString(
+                context.getString(
                         R.string.pokemon_weight_height_format,
                         pokemon.getPeso(),
                         pokemon.getAltura()
@@ -79,12 +84,14 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
         );
 
         // Configurar la imagen
-        Glide.with(holder.itemView.getContext())
+        Glide.with(context)
                 .load(pokemon.getFoto())
                 .into(holder.imageView);
 
-        // Configurar clics en el elemento
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(pokemon));
+        // Configurar clics en el elemento solo si hay un listener
+        if (listener != null) {
+            holder.itemView.setOnClickListener(v -> listener.onItemClick(pokemon));
+        }
     }
 
     @Override
@@ -114,7 +121,7 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
             // Inicializar las vistas del diseño
             nameTextView = itemView.findViewById(R.id.pokemon_name);
             detailsTextView = itemView.findViewById(R.id.pokemon_details);
-            weightHeightTextView = itemView.findViewById(R.id.pokemon_weight_height); // Nueva referencia
+            weightHeightTextView = itemView.findViewById(R.id.pokemon_weight_height);
             imageView = itemView.findViewById(R.id.pokemon_image);
         }
     }

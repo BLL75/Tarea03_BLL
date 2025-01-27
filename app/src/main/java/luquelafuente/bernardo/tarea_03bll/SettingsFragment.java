@@ -38,8 +38,8 @@ public class SettingsFragment extends Fragment {
     private SharedPreferences sharedPreferences;
 
     // Claves para SharedPreferences
-    private static final String KEY_SWIPE_TO_DELETE = "swipe_to_delete_enabled";
-    private static final String KEY_LANGUAGE = "language";
+    public static final String KEY_SWIPE_TO_DELETE = "swipe_to_delete_enabled";  // <-- Ahora es pública
+    public static final String KEY_LANGUAGE = "language"; // <-- Ahora es pública
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

@@ -1,6 +1,5 @@
 package luquelafuente.bernardo.tarea_03bll;
 
-import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,14 +8,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -24,90 +28,141 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Fragmento que muestra la lista de Pokémon capturados.
- * Proporciona funcionalidad para mostrar detalles y eliminar Pokémon mediante "Swipe to Delete".
- */
+import androidx.preference.PreferenceManager;
+
 public class MyPokemonsFragment extends Fragment {
 
+    private static final String TAG = "MyPokemonsFragment";
     private RecyclerView recyclerView;
     private PokemonAdapter adapter;
-    private final List<Pokemon> pokemonList = new ArrayList<>();
-
+    private List<Pokemon> myPokemonList = new ArrayList<>();
+    private SwipeRefreshLayout swipeRefreshLayout;
     private FirebaseAuth auth;
 
-
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_my_pokemons, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // Configurar el RecyclerView
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_my_pokemons, container, false);
         recyclerView = view.findViewById(R.id.recycler_view_my_pokemons);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout_my_pokemons);
 
-        // Configurar el adaptador
-        adapter = new PokemonAdapter(pokemonList, this::showPokemonDetails);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        // Pasar 'false' para indicar que no es la Pokédex general
+        adapter = new PokemonAdapter(myPokemonList, false, getContext(), this::showPokemonDetails);
         recyclerView.setAdapter(adapter);
 
         // Inicializar FirebaseAuth
         auth = FirebaseAuth.getInstance();
 
+        // Configurar el Swipe to Delete
+        setupSwipeToDelete();
 
-        // Configurar "Swipe to Delete"
-        enableSwipeToDelete();
-
-        // Cargar los Pokémon capturados
+        // Cargar los Pokémon capturados desde Firestore
         loadCapturedPokemons();
+
+        swipeRefreshLayout.setOnRefreshListener(this::loadCapturedPokemons);
+
+        return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadCapturedPokemons(); // Recargar los datos al volver al fragmento
+    private void setupSwipeToDelete() {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false; // No se usa en este caso
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                Pokemon pokemon = myPokemonList.get(position);
+
+                // Obtener el estado actual del Switch de SharedPreferences
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+                boolean allowSwipeToDelete = sharedPreferences.getBoolean(SettingsFragment.KEY_SWIPE_TO_DELETE, true);
+
+                if (allowSwipeToDelete) {
+                    // Eliminar el Pokémon de Firestore
+                    deletePokemonFromFirestore(pokemon.getNombre(), position);
+
+                    // Mostrar mensaje de confirmación
+                    Snackbar.make(recyclerView, "Pokémon " + pokemon.getNombre() + " eliminado", Snackbar.LENGTH_LONG).show();
+                } else {
+                    // Si el Swipe to Delete está desactivado, refrescar el item
+                    adapter.notifyItemChanged(position);
+                    // Mostrar un Toast indicando que la opción está desactivada
+                    Toast.makeText(getContext(), R.string.swipe_to_delete_disabled, Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-    /**
-     * Carga la lista de Pokémon capturados desde Firebase Firestore.
-     */
-    private void loadCapturedPokemons() {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
+    private void deletePokemonFromFirestore(String pokemonName, int position) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userId = auth.getCurrentUser().getUid(); // Obtener el UID del usuario actual
+        String userId = auth.getCurrentUser().getUid();
+
+        db.collection("captured_pokemon").document(userId)
+                .collection("user_pokemon")
+                .whereEqualTo("nombre", pokemonName)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            db.collection("captured_pokemon").document(userId)
+                                    .collection("user_pokemon").document(document.getId())
+                                    .delete()
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d(TAG, "Pokemon eliminado correctamente de Firestore");
+                                        // Eliminar de la lista local solo si se eliminó de Firestore
+                                        myPokemonList.remove(position);
+                                        adapter.notifyItemRemoved(position);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e(TAG, "Error al eliminar Pokémon de Firestore", e);
+                                        adapter.notifyItemChanged(position); // Restaurar el ítem si hay un error
+                                    });
+                        }
+                    } else {
+                        Log.e(TAG, "No se encontró el Pokémon para eliminar en Firestore");
+                        adapter.notifyItemChanged(position); // Restaurar el ítem si no se encuentra
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error al buscar Pokémon en Firestore", e);
+                    adapter.notifyItemChanged(position); // Restaurar el ítem si hay un error
+                });
+    }
+
+    private void loadCapturedPokemons() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userId = auth.getCurrentUser().getUid();
 
         db.collection("captured_pokemon").document(userId)
                 .collection("user_pokemon")
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    pokemonList.clear();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Pokemon pokemon = new Pokemon(
-                                document.getString("nombre"),
-                                document.getString("indice"),
-                                document.getString("tipos"),
-                                document.getString("peso"),
-                                document.getString("altura"),
-                                document.getString("foto")
-                        );
-                        pokemonList.add(pokemon);
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        myPokemonList.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Pokemon pokemon = new Pokemon(
+                                    document.getString("nombre"),
+                                    document.getString("indice"), // Aquí obtenemos el índice
+                                    document.getString("tipos"),
+                                    document.getString("peso"),
+                                    document.getString("altura"),
+                                    document.getString("foto") // Asegúrate de que el campo se llama "foto"
+                            );
+                            myPokemonList.add(pokemon);
+                        }
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Log.e(TAG, "Error getting documents: ", task.getException());
                     }
-                    adapter.notifyDataSetChanged();
-                    Log.d("MyPokemonsFragment", "Lista recargada: " + pokemonList.size() + " Pokémon.");
-                })
-                .addOnFailureListener(e -> Log.e("MyPokemonsFragment", "Error al cargar Pokémon", e));
+                    swipeRefreshLayout.setRefreshing(false);
+                });
     }
-
-
-    /**
-     * Muestra un cuadro de diálogo con los detalles de un Pokémon seleccionado.
-     *
-     * @param pokemon El Pokémon cuyos detalles se mostrarán.
-     */
     private void showPokemonDetails(Pokemon pokemon) {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_pokemon_details, null);
 
@@ -115,16 +170,16 @@ public class MyPokemonsFragment extends Fragment {
         TextView nameTextView = dialogView.findViewById(R.id.pokemon_name);
         TextView detailsTextView = dialogView.findViewById(R.id.pokemon_details);
 
-        // Cargar la imagen del Pokémon
+        // Cargar la imagen del Pokémon con Glide
         Glide.with(this).load(pokemon.getFoto()).into(imageView);
 
         // Configurar el nombre del Pokémon
         nameTextView.setText(pokemon.getNombre());
 
-        // Configurar los detalles del Pokémon con todos los argumentos
+        // Configurar los detalles del Pokémon
         String details = getString(
                 R.string.pokemon_details_format,
-                pokemon.getIndice() != null ? pokemon.getIndice() : "-",
+                pokemon.getIndice() != null && !pokemon.getIndice().isEmpty() ? pokemon.getIndice() : "-",
                 pokemon.getTipos() != null ? pokemon.getTipos() : getString(R.string.unknown_type),
                 pokemon.getPeso() != null ? pokemon.getPeso() : "-",
                 pokemon.getAltura() != null ? pokemon.getAltura() : "-"
@@ -136,76 +191,5 @@ public class MyPokemonsFragment extends Fragment {
                 .setView(dialogView)
                 .setPositiveButton(R.string.close_button, null)
                 .show();
-    }
-
-
-
-    /**
-     * Elimina un Pokémon de la base de datos y actualiza la lista local.
-     *
-     * @param pokemon El Pokémon a eliminar.
-     */
-    private void deletePokemon(Pokemon pokemon) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        db.collection("captured_pokemon")
-                .document(auth.getCurrentUser().getUid()) // Usa el UID del usuario
-                .collection("user_pokemon")
-                .whereEqualTo("nombre", pokemon.getNombre())
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                            document.getReference().delete()
-                                    .addOnSuccessListener(aVoid -> {
-                                        int position = pokemonList.indexOf(pokemon);
-                                        if (position >= 0) {
-                                            pokemonList.remove(position);
-                                            adapter.notifyItemRemoved(position);
-                                        }
-                                        Log.d("MyPokemonsFragment", "¡Pokémon eliminado!");
-                                    })
-                                    .addOnFailureListener(e -> Log.e("MyPokemonsFragment", "Error al eliminar el Pokémon", e));
-                        }
-                    } else {
-                        Log.d("MyPokemonsFragment", "Pokémon no encontrado.");
-                    }
-                })
-                .addOnFailureListener(e -> Log.e("MyPokemonsFragment", "Error al buscar el Pokémon", e));
-    }
-
-
-    /**
-     * Configura la funcionalidad de "Swipe to Delete" en el RecyclerView.
-     */
-    private void enableSwipeToDelete() {
-        if (!isSwipeEnabled()) {
-            Log.d("MyPokemonsFragment", "Swipe to Delete deshabilitado");
-            return;
-        }
-
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false; // No soportamos mover elementos
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-                Pokemon pokemonToDelete = pokemonList.get(position);
-                deletePokemon(pokemonToDelete);
-            }
-        }).attachToRecyclerView(recyclerView);
-    }
-
-    /**
-     * Comprueba si la funcionalidad de "Swipe to Delete" está habilitada.
-     *
-     * @return True si está habilitada, False en caso contrario.
-     */
-    private boolean isSwipeEnabled() {
-        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("settings_preferences", 0);
-        return sharedPreferences.getBoolean("swipe_to_delete_enabled", true); // Por defecto habilitado
     }
 }

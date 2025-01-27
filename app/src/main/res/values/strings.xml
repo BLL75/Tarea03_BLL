@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Mensajes de error y autenticación -->
     <string name="error_empty_fields">Por favor, introduce el correo y la contraseña.</string>
-    <string name="login_success">Login correcto</string>
+    <string name="login_success">Inicio de sesión correcto</string>
     <string name="login_failed">Error de autenticación.</string>
     <string name="register_success">Registro correcto</string>
     <string name="register_failed">Error de autenticación.</string>
@@ -14,7 +15,6 @@
     <string name="pokemon_image">Imagen: </string>
     <string name="pokemon_name">Nombre del Pokémon</string>
     <string name="pokemon_details">Detalles del Pokémon</string>
-
 
     <!-- Ajustes -->
     <string name="switch_swipe_to_delete">Habilitar eliminación deslizando</string>
@@ -32,7 +32,6 @@
     <string name="pokemon_already_captured">¡Ya tienes a %1$s en tu colección!</string>
     <string name="pokemon_captured">¡Has capturado a %1$s!</string>
 
-
     <string name="email_hint">Correo electrónico</string>
     <string name="password_hint">Contraseña</string>
     <string name="button_login">Iniciar sesión</string>
@@ -48,7 +47,6 @@
     <string name="recycler_view_my_pokemons_desc">Lista de Pokémon capturados</string>
 
     <string name="recycler_view_pokedex_desc">Lista de Pokémon en la Pokédex</string>
-
 
     <string name="switch_swipe_to_delete_desc">Habilitar o deshabilitar la opción de deslizar para eliminar</string>
     <string name="button_about_desc">Abrir información acerca de la aplicación</string>
@@ -66,7 +64,6 @@
     <string name="logout_title">Cerrar sesión</string>
     <string name="logout_message">¿Estás seguro de que quieres cerrar tu sesión de usuario?</string>
 
-
-
+    <string name="swipe_to_delete_disabled">Deslizar para eliminar está desactivado</string>
 
 </resources>
