@@ -63,22 +63,6 @@ El desarrollo de esta aplicación incluye:
 -   **Soporte Multilenguaje**: Español e Inglés.
 
 ---
-
-## **📸 Capturas de pantalla**
-- **Pantalla de Inicio de Sesión**  
-  Permite a los usuarios autenticarse mediante correo y contraseña o con Google.
-
-- **Pokédex**  
-  Explora todos los Pokémon con detalles básicos y captura los que desees.
-
-- **Mis Pokémon Capturados**  
-  Administra tus Pokémon capturados con opción de eliminar.
-
-- **Ajustes**  
-  Configura la aplicación: idioma, eliminar deslizando, entre otros.
-
-(Aquí deberías insertar las imágenes de las pantallas.)
-
 ---
 
 ## **🚀 Instrucciones de uso**
@@ -103,10 +87,11 @@ El desarrollo de esta aplicación incluye:
 ---
 
 ## **📙 Conclusiones del desarrollador**
-El desarrollo de Pokédex App fue una experiencia enriquecedora. Algunos puntos destacados incluyen:
+El desarrollo de Pokédex App ha sido una experiencia enriquecedora, que me permite avanzar en el aprendizaje.
+Algunos puntos destacados incluyen:
 
 - **Integración de Firebase**: Uso de Firestore y Authentication.
-- **Consumo de APIs REST**: Implementación eficiente de Retrofit.
+- **Consumo de APIs REST**: Implementación eficiente de Retrofit para la obtención de la información de los Pokémon.
 - **Diseño centrado en el usuario**: Garantizar una experiencia fluida con Material Design y soporte multilenguaje.
 
 **Desafíos superados**:
